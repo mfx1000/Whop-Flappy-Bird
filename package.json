@@ -3,12 +3,14 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "whop-proxy --command 'next dev --turbopack'",
+		"dev": "whop-proxy --npmCommand start:next",
+		"start:next": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"@supabase/supabase-js": "^2.50.2",
 		"@vercel/functions": "^2.0.3",
 		"@whop/api": "^0.0.27",
 		"@whop/react": "0.2.6",
