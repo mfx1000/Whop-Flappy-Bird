@@ -2,6 +2,7 @@
 "use client";
 
 import { useRef, useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation"; // Import the router
 
 // --- Type Interfaces ---
 interface Bird {
@@ -71,7 +72,8 @@ const loadImages = (sources: typeof assetSources): Promise<Record<string, any>> 
 };
 
 
-export default function FlappyRoyaleGame({ userId }: { userId: string }) {
+export default function FlappyRoyaleGame({ userId, onGameOver }: { userId: string; onGameOver: () => void; }) {
+  const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number | null>(null);
   const assetsRef = useRef<Record<string, any>>({});
@@ -87,7 +89,7 @@ export default function FlappyRoyaleGame({ userId }: { userId: string }) {
 
   const lastTimeRef = useRef<number>(0);
 
-  const [isGameOver, setIsGameOver] = useState(false);
+//   const [isGameOver, setIsGameOver] = useState(false);
 
   // --- RE-TUNED CONSTANTS FOR NOTICEABLE DIFFICULTY ---
   const GRAVITY = 1200; 
@@ -143,7 +145,7 @@ export default function FlappyRoyaleGame({ userId }: { userId: string }) {
     scoreRef.current = 0;
     
     gameStateRef.current = "getReady";
-    setIsGameOver(false);
+   //  setIsGameOver(false);
   }, []);
   
   const gameLoop = useCallback((timestamp: number) => {
@@ -161,6 +163,17 @@ export default function FlappyRoyaleGame({ userId }: { userId: string }) {
     if (!ctx || !canvas || !birdRef.current) return;
     
     const bird = birdRef.current;
+
+	//  // --- UPDATED: Game Over Logic ---
+	//  const handleGameOver = () => {
+   //      if (gameStateRef.current === "playing") {
+   //          submitScore(scoreRef.current).then(() => {
+   //              // Redirect to home page with a retry marker
+   //              router.push('/?retry=true');
+   //          });
+   //      }
+   //      gameStateRef.current = "over";
+   //  };
 
     // --- State Updates with Delta Time ---
     if (gameStateRef.current === "playing") {
@@ -186,10 +199,21 @@ export default function FlappyRoyaleGame({ userId }: { userId: string }) {
         pipesRef.current.forEach(pipe => pipe.x -= currentPipeSpeedRef.current * deltaTime);
         pipesRef.current = pipesRef.current.filter(pipe => pipe.x + PIPE_WIDTH > 0);
 
-        if (bird.y + bird.height > canvas.height - BASE_HEIGHT || bird.y < 0) {
-            if (gameStateRef.current === "playing") submitScore(scoreRef.current);
+		  // --- UPDATED: Game Over logic ---
+        const handleGameOver = () => {
+            if (gameStateRef.current === "playing") {
+                submitScore(scoreRef.current).then(() => {
+                    onGameOver(); // Call the redirect function
+                });
+            }
             gameStateRef.current = "over";
-            setIsGameOver(true);
+        };
+
+        if (bird.y + bird.height > canvas.height - BASE_HEIGHT || bird.y < 0) {
+            // if (gameStateRef.current === "playing") submitScore(scoreRef.current);
+            // gameStateRef.current = "over";
+            // setIsGameOver(true);
+				handleGameOver();
         }
         for (const pipe of pipesRef.current) {
           if (
@@ -197,9 +221,10 @@ export default function FlappyRoyaleGame({ userId }: { userId: string }) {
             bird.x + bird.width > pipe.x &&
             (bird.y < pipe.y || bird.y + bird.height > pipe.y + pipe.gap)
           ) {
-            if (gameStateRef.current === "playing") submitScore(scoreRef.current);
-            gameStateRef.current = "over";
-            setIsGameOver(true);
+            // if (gameStateRef.current === "playing") submitScore(scoreRef.current);
+            // gameStateRef.current = "over";
+            // setIsGameOver(true);
+				handleGameOver();
           }
         }
       
@@ -292,10 +317,11 @@ export default function FlappyRoyaleGame({ userId }: { userId: string }) {
     } else if (gameStateRef.current === "getReady" && birdRef.current) {
         gameStateRef.current = "playing";
         birdRef.current.velocity = FLAP_STRENGTH;
-    } else if (gameStateRef.current === "over") {
-        resetGame();
-    }
-  }, [resetGame]);
+    } 
+	//  else if (gameStateRef.current === "over") {
+   //      resetGame();
+   //  }
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -328,22 +354,31 @@ export default function FlappyRoyaleGame({ userId }: { userId: string }) {
     };
   }, [gameLoop, handleFlap, resetGame]);
 
+//   return (
+//     <div className="relative flex flex-col items-center justify-center bg-black rounded-lg shadow-2xl cursor-pointer">
+//       <canvas ref={canvasRef} />
+//       {isGameOver && (
+//          <div className="absolute bottom-20 flex flex-col items-center">
+//             <button 
+//                 onClick={handleFlap}
+//                 className="px-6 py-3 text-white bg-green-500 rounded-lg text-xl font-bold border-b-4 border-green-700 hover:bg-green-600 active:translate-y-1"
+//             >
+//                 Try Again
+//             </button>
+//          </div>
+//       )}
+//     </div>
+//   );
+
+// REMOVED: The Try Again button is no longer needed in the JSX
   return (
     <div className="relative flex flex-col items-center justify-center bg-black rounded-lg shadow-2xl cursor-pointer">
       <canvas ref={canvasRef} />
-      {isGameOver && (
-         <div className="absolute bottom-20 flex flex-col items-center">
-            <button 
-                onClick={handleFlap}
-                className="px-6 py-3 text-white bg-green-500 rounded-lg text-xl font-bold border-b-4 border-green-700 hover:bg-green-600 active:translate-y-1"
-            >
-                Try Again
-            </button>
-         </div>
-      )}
     </div>
   );
 }
+
+
 
 
 

@@ -1,35 +1,35 @@
-import { WhopApp } from "@whop/react/components";
+// app/layout.tsx
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { Press_Start_2P } from "next/font/google";
+import { WhopIframeSdkProvider } from "@whop/react"; // Import the provider
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+const pixelFont = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-pixel",
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-	title: "Whop App",
-	description: "My Whop App",
+  title: "Flappy Bird Royale",
+  description: "Daily Flappy Bird Tournament",
 };
 
 export default function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
-	return (
-		<html lang="en" suppressHydrationWarning>
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-			>
-				<WhopApp>{children}</WhopApp>
-			</body>
-		</html>
-	);
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className={`${pixelFont.variable} ${inter.variable}`}>
+      <body>
+        {/* Wrap the children with the WhopIframeSdkProvider */}
+        <WhopIframeSdkProvider>{children}</WhopIframeSdkProvider>
+      </body>
+    </html>
+  );
 }

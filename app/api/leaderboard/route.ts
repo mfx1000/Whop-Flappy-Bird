@@ -1,11 +1,7 @@
 // app/api/leaderboard/route.ts
-
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-// Initialize Supabase client
-// Note: We use the public anon key here, as this is a public-facing route.
-// Row Level Security should be enabled in Supabase for production.
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -13,23 +9,28 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    // 1. Generate the ID for today's tournament to filter scores
     const tournamentId = new Date().toISOString().split("T")[0];
 
-    // 2. Fetch the top 10 scores for the current tournament
-    const { data: scores, error } = await supabase
+    const { data: scores, error: scoresError } = await supabase
       .from("scores")
       .select("username, score, avatar_url")
       .eq("tournament_id", tournamentId)
-      .order("score", { ascending: false }) // Highest score first
+      .order("score", { ascending: false })
       .limit(10);
 
-    if (error) {
-      throw error;
-    }
+    if (scoresError) throw scoresError;
+    
+    // Calculate prize pool
+    const { count: playerCount, error: countError } = await supabase
+        .from('scores')
+        .select('*', { count: 'exact', head: true })
+        .eq('tournament_id', tournamentId);
+        
+    if (countError) throw countError;
 
-    // 3. Return the leaderboard data
-    return NextResponse.json(scores);
+    const prizePool = (playerCount || 0) * 1; // $1 per entry
+
+    return NextResponse.json({ scores, prizePool });
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";

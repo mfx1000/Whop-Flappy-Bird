@@ -1,9 +1,4 @@
-// import { frostedThemePlugin } from "@whop/react/tailwind";
-
-// export default { plugins: [frostedThemePlugin()] };
-
 // tailwind.config.ts
-
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -13,10 +8,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // We can add custom theme properties here later if needed
+      fontFamily: {
+        pixel: ["var(--font-pixel)"], // Use the CSS variable
+        sans: ["var(--font-inter)"],
+      },
+      backgroundImage: {
+        'flappy-bg': "url('/sprites/background-day.png')",
+      }
     },
   },
-  plugins: [], // This is now empty, resolving the error
+  plugins: [],
 };
 
 export default config;
