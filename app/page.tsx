@@ -60,12 +60,47 @@
 // }
 
 
+// // app/page.tsx
+// import TournamentLobby from "@/components/TournamentLobby";
+// import CountdownTimer from "@/components/CountdownTimer";
+
+// // This page is now a simple, static Server Component.
+// // It no longer needs to access searchParams.
+// export default function HomePage() {
+//   return (
+//     <div className="min-h-screen w-full bg-flappy-bg bg-cover bg-center flex flex-col items-center font-pixel text-white">
+//       <div className="w-full h-full min-h-screen bg-black/30 flex flex-col items-center justify-between p-4">
+
+//         {/* Header */}
+//         <header className="w-full max-w-lg text-center p-2 bg-black/50 rounded-b-lg border-b-2 border-l-2 border-r-2 border-yellow-300">
+//             <CountdownTimer />
+//         </header>
+
+//         {/* Render the new client component that handles all dynamic logic */}
+//         <TournamentLobby />
+        
+//         {/* Footer Spacer */}
+//         <footer className="w-full h-12"></footer>
+//       </div>
+//     </div>
+//   );
+// }
+
 // app/page.tsx
 import TournamentLobby from "@/components/TournamentLobby";
 import CountdownTimer from "@/components/CountdownTimer";
+import { Suspense } from 'react'; // Import Suspense
 
-// This page is now a simple, static Server Component.
-// It no longer needs to access searchParams.
+// A simple fallback component to show while the dynamic component loads.
+// This will be displayed for a split second before the real lobby appears.
+function LobbySkeleton() {
+  return (
+    <main className="flex flex-col items-center justify-center flex-grow w-full px-4 mt-8">
+      <div className="text-white font-pixel text-lg">Loading Tournament...</div>
+    </main>
+  );
+}
+
 export default function HomePage() {
   return (
     <div className="min-h-screen w-full bg-flappy-bg bg-cover bg-center flex flex-col items-center font-pixel text-white">
@@ -76,8 +111,10 @@ export default function HomePage() {
             <CountdownTimer />
         </header>
 
-        {/* Render the new client component that handles all dynamic logic */}
-        <TournamentLobby />
+        {/* Wrap the client component in a Suspense boundary */}
+        <Suspense fallback={<LobbySkeleton />}>
+          <TournamentLobby />
+        </Suspense>
         
         {/* Footer Spacer */}
         <footer className="w-full h-12"></footer>
