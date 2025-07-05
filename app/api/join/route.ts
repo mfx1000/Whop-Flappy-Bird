@@ -12,8 +12,8 @@ export async function POST(request: Request) {
     }
 
     const chargeDetails = {
-      // UPDATED: Changed amount from 1.00 to 5.00
-      amount: 5.00,
+      // UPDATED: Changed amount from 5.00 to 2.00
+      amount: 2.00,
       currency: "usd" as const,
       userId: user.userId,
       metadata: {

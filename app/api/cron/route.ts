@@ -42,7 +42,7 @@ export async function GET(request: Request) {
           .select('*', { count: 'exact', head: true })
           .eq('tournament_id', tournamentId);
           
-      const prizePool = (playerCount || 0) * 5;
+      const prizePool = (playerCount || 0) * 2;
 
       if (prizePool > 0) {
         const winnerPayout = prizePool * 0.70;

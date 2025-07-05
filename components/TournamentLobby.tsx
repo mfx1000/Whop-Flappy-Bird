@@ -74,7 +74,7 @@ export default function TournamentLobby() {
         <div className="bg-black/40 backdrop-blur-sm p-6 rounded-lg text-center border border-white/20 max-w-lg">
             <h2 className="text-xl text-yellow-300 mb-2">Daily Tournament!</h2>
             <p className="text-sm leading-relaxed">
-                The player with the highest score at the end of the day wins 70% of the prize pool! Each attempt costs $5, and your best score is saved.
+                The player with the highest score at the end of the day wins 70% of the prize pool! Each attempt costs $2, and your best score is saved.
             </p>
             <div className="mt-4 pt-4 border-t border-white/20">
                 <h3 className="text-lg text-yellow-300 mb-2">How to Play</h3>
