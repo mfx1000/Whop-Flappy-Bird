@@ -28,7 +28,8 @@ export async function GET() {
         
     if (countError) throw countError;
 
-    const prizePool = (playerCount || 0) * 1; // $1 per entry
+    // UPDATED: Changed prize pool calculation from * 1 to * 2
+    const prizePool = (playerCount || 0) * 2; 
 
     return NextResponse.json({ scores, prizePool });
 
