@@ -1,23 +1,44 @@
 // app/api/join/route.ts
 
 import { whopSdk } from "@/lib/whop-sdk";
+import { createClient } from "@supabase/supabase-js";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
+
 export async function POST(request: Request) {
   try {
+    // 1. Authenticate the user and get their company ID
     const user = await whopSdk.verifyUserToken(await headers());
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const companyId = (user as { companyId?: string })?.companyId;
+
+    if (!user || !companyId) {
+      return NextResponse.json({ error: "Unauthorized or company not found." }, { status: 401 });
     }
 
+    // 2. Fetch the custom entry fee for this specific company
+    const { data: companySettings } = await supabaseAdmin
+      .from("companies")
+      .select("entry_fee_cents")
+      .eq("id", companyId)
+      .single();
+
+    // Default to 200 cents ($2.00) if no price is set
+    const priceInCents = companySettings?.entry_fee_cents || 200;
+
+    // 3. Create the charge with the dynamic price
     const chargeDetails = {
-      // UPDATED: Changed amount from 5.00 to 2.00
-      amount: 2.00,
+      amount: priceInCents / 100, // Convert cents to dollars
       currency: "usd" as const,
       userId: user.userId,
+      // We associate the payment with both the tournament and the company
       metadata: {
         tournamentId: new Date().toISOString().split("T")[0],
+        companyId: companyId,
       },
     };
 
