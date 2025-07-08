@@ -465,22 +465,58 @@
 // }
 
 
-// app/page.tsx
-import { Suspense } from 'react';
-import HomePageClient from './home-client'; // Import the new client component
+// // app/experience/[experienceId]/page.tsx
+// import { Suspense } from 'react';
+// import HomePageClient from './home-client'; // Import the client component
+// import CountdownTimer from '@/components/CountdownTimer';
 
-// This is a simple UI to show while the client component loads.
-// It will only be visible for a split second.
+// // This is a simple UI to show while the client component loads
+// function LobbySkeleton() {
+//   return (
+//     <div className="flex-grow flex items-center justify-center">
+//         <p className="text-white font-pixel text-lg animate-pulse">Loading Tournament...</p>
+//     </div>
+//   );
+// }
+
+// export default function HomePage() {
+//   return (
+//     <div className="min-h-screen w-full bg-flappy-bg bg-cover bg-center flex flex-col items-center font-pixel text-white">
+//       <div className="w-full h-full min-h-screen bg-black/30 flex flex-col items-center justify-between p-4">
+
+//         {/* Header */}
+//         <header className="w-full max-w-lg text-center p-2 bg-black/50 rounded-b-lg border-b-2 border-l-2 border-r-2 border-yellow-300">
+//             <CountdownTimer />
+//         </header>
+
+//         {/* Suspense boundary for the dynamic client component */}
+//         <Suspense fallback={<LobbySkeleton />}>
+//           <HomePageClient />
+//         </Suspense>
+        
+//         {/* Footer Spacer */}
+//         <footer className="w-full h-12"></footer>
+//       </div>
+//     </div>
+//   );
+// }
+
+// app/experience/[experienceId]/page.tsx
+import { Suspense } from 'react';
+import HomePageClient from './home-client'; // Import the client component
+
+// This is a simple UI to show while the client component loads
 function LobbySkeleton() {
   return (
     <div className="min-h-screen w-full bg-flappy-bg bg-cover bg-center flex items-center justify-center font-pixel text-white">
-        Loading Tournament...
+        <p className="text-lg animate-pulse">Loading Tournament...</p>
     </div>
   );
 }
 
 export default function HomePage() {
   return (
+    // The Suspense boundary now wraps the entire client component.
     <Suspense fallback={<LobbySkeleton />}>
       <HomePageClient />
     </Suspense>
