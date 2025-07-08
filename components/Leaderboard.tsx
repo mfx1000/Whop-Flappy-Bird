@@ -35,7 +35,7 @@ export default function Leaderboard() {
   if (error) return <div className="text-red-400 mt-8 text-center font-pixel">Error: {error}</div>;
 
   return (
-    <div className="w-full max-w-md mt-10 bg-black/30 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-white/10">
+    <div className="w-full max-w-md mt-6 bg-black/30 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-white/10">
       <h2 className="text-2xl font-bold text-yellow-300 text-center mb-2 font-pixel">LEADERBOARD</h2>
       <div className="text-center mb-6">
         <p className="text-white font-pixel">PRIZE POOL: <span className="text-green-400 font-bold">${prizePool.toFixed(2)}</span></p>

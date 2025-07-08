@@ -108,10 +108,10 @@ export default function HomePageClient() {
                             <p className="text-sm">Press <span className="font-bold text-white">SPACE</span> or <span className="font-bold text-white">TAP</span> the screen to flap.</p>
                         </div>
                     </div>
-                    <div className="mt-6">
+                    <div className="mt-0">
                         <JoinButton isRetry={isRetry} entryFee={entryFee} />
                     </div>
-                    <div className="mt-6 w-full flex justify-center">
+                    <div className="mt-0 w-full flex justify-center">
                         <Leaderboard />
                     </div>
                 </main>
