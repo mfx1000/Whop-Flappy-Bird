@@ -110,6 +110,88 @@ export async function getPayoutHistory(experienceId: string) {
     }
 }
 
+// --- NEW: Server Action to get company settings ---
+export async function getCompanySettings(experienceId: string) {
+    try {
+        const user = await WhopServerSdk({ appId: process.env.NEXT_PUBLIC_WHOP_APP_ID!, appApiKey: process.env.WHOP_API_KEY! }).verifyUserToken(await headers());
+        if (!user || !user.userId) {
+            throw new Error("Unauthorized.");
+        }
+
+        const userScopedSdk = WhopServerSdk({
+            appId: process.env.NEXT_PUBLIC_WHOP_APP_ID!,
+            appApiKey: process.env.WHOP_API_KEY!,
+            onBehalfOfUserId: user.userId,
+        });
+
+        const experience = await userScopedSdk.experiences.getExperience({ experienceId });
+        const companyId = experience?.company?.id;
+
+        if (!companyId) {
+            throw new Error("Company not found.");
+        }
+
+        const { data: settings, error } = await supabaseAdmin
+            .from("companies")
+            .select("entry_fee_cents, price_last_set_at")
+            .eq("id", companyId)
+            .single();
+
+        if (error && error.code !== 'PGRST116') {
+            throw error;
+        }
+
+        return { success: true, settings };
+
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        return { success: false, error: errorMessage };
+    }
+}
+
+export async function getLeaderboardData(experienceId: string) {
+    try {
+        const tournamentId = new Date().toISOString().split("T")[0];
+
+        // FIX: Add the required 'appId' to the SDK initialization
+        const sdk = WhopServerSdk({ 
+            appId: process.env.NEXT_PUBLIC_WHOP_APP_ID!,
+            appApiKey: process.env.WHOP_API_KEY! 
+        });
+
+        const experience = await sdk.experiences.getExperience({ experienceId });
+        const companyId = experience?.company?.id;
+
+        if (!companyId) {
+            throw new Error("Company not found for this experience.");
+        }
+
+        const { data: scores, error: scoresError } = await supabaseAdmin
+            .from("scores")
+            .select("username, score, avatar_url")
+            .eq("tournament_id", tournamentId)
+            .order("score", { ascending: false })
+            .limit(10);
+        if (scoresError) throw scoresError;
+
+        const { data: transactions, error: transactionsError } = await supabaseAdmin
+            .from("transactions")
+            .select("net_amount_cents")
+            .eq("tournament_id", tournamentId)
+            .eq("company_id", companyId);
+        if (transactionsError) throw transactionsError;
+
+        const prizePoolCents = transactions.reduce((sum, t) => sum + t.net_amount_cents, 0);
+        const prizePool = prizePoolCents / 100;
+
+        return { success: true, scores, prizePool };
+
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        return { success: false, error: errorMessage };
+    }
+}
+
 
 // // app/actions.ts
 // 'use server';
