@@ -26,19 +26,25 @@ async function verifyWebhook(request: NextRequest, body: string) {
     .update(signedPayload)
     .digest('hex');
 
-  // --- NEW: Detailed logging for debugging ---
   if (signature !== expectedSignature) {
     console.warn("--- Webhook Signature Mismatch ---");
     console.log(`Received Signature: ${signature}`);
     console.log(`Expected Signature: ${expectedSignature}`);
     console.log(`Timestamp Used: ${timestamp}`);
-    console.log(`Secret Used (first 5 chars): ws_${secret.substring(3, 8)}...`); // Show a safe part of the secret to confirm it's loaded
+    console.log(`Secret Used (first 5 chars): ws_${secret.substring(3, 8)}...`);
     console.log("------------------------------------");
     return false;
   }
 
   return true;
 }
+
+// --- NEW: Configuration to disable the default body parser ---
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export async function POST(request: NextRequest) {
   try {
